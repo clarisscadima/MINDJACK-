@@ -27,6 +27,8 @@ public class PlayerInventory : MonoBehaviour
     private bool nearMachine = false;
     private bool allPartsCollected = false;
 
+    private PlayerResources playerResources;
+
     void Start()
     {
         UnityEngine.Debug.Log("=== INICIANDO PLAYER INVENTORY ===");
@@ -61,6 +63,10 @@ public class PlayerInventory : MonoBehaviour
         {
             machineTrigger.SetActive(false);
         }
+
+        playerResources = GetComponent<PlayerResources>();
+        if (playerResources == null)
+            playerResources = FindObjectOfType<PlayerResources>();
 
         UpdateInventoryUI();
         UpdateCoinsUI(); // ✅ NUEVO
@@ -99,29 +105,65 @@ public class PlayerInventory : MonoBehaviour
     }
 
     // ✅ NUEVO MÉTODO: Agregar monedas
-    public void AddCoins(int amount)
-    {
-        coins += amount;
-        UnityEngine.Debug.Log($"💰 +{amount} monedas! Total: {coins}");
-        UpdateCoinsUI();
-    }
+    //public void AddCoins(int amount)
+    //{
+    //    coins += amount;
+    //    UnityEngine.Debug.Log($"💰 +{amount} monedas! Total: {coins}");
+    //    UpdateCoinsUI();
+    //}
 
     // ✅ NUEVO MÉTODO: Gastar monedas
-    public bool SpendCoins(int amount)
+    //public bool SpendCoins(int amount)
+    //{
+    //    if (coins >= amount)
+    //    {
+    //        coins -= amount;
+    //        UnityEngine.Debug.Log($"💰 -{amount} monedas! Restantes: {coins}");
+    //        UpdateCoinsUI();
+    //        return true;
+    //    }
+    //    else
+    //    {
+    //        UnityEngine.Debug.Log($"❌ No tienes suficientes monedas. Necesitas: {amount}, Tienes: {coins}");
+    //        return false;
+    //    }
+    //}
+    // Modifica AddCoins y SpendCoins:
+
+    public void AddCoins(int amount)
     {
-        if (coins >= amount)
+        if (playerResources != null)
         {
-            coins -= amount;
-            UnityEngine.Debug.Log($"💰 -{amount} monedas! Restantes: {coins}");
-            UpdateCoinsUI();
-            return true;
+            playerResources.ModificarFichas(amount);
         }
         else
         {
-            UnityEngine.Debug.Log($"❌ No tienes suficientes monedas. Necesitas: {amount}, Tienes: {coins}");
+            // Fallback al sistema antiguo
+            coins += amount;
+            UpdateCoinsUI();
+        }
+    }
+
+    public bool SpendCoins(int amount)
+    {
+        if (playerResources != null)
+        {
+            // Esto se manejará con el nuevo sistema de apuestas
+            return playerResources.ApostarFichas(amount);
+        }
+        else
+        {
+            // Fallback al sistema antiguo
+            if (coins >= amount)
+            {
+                coins -= amount;
+                UpdateCoinsUI();
+                return true;
+            }
             return false;
         }
     }
+
 
     void UpdateCoinsUI() // ✅ NUEVO MÉTODO
     {
